@@ -4,12 +4,12 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../login/login.dart';
 import 'home_tab.dart';
-import 'add_friends_tab.dart';
 import 'add_post_tab.dart';
-import 'search_tab.dart';
-import 'profile_tab.dart';
 import 'home_fab.dart';
 import '../../screens/profile/profile.dart';
+import '../../screens/plan a trip/plan_a_trip.dart';
+import '../chat/chat.dart';
+import '../add_friend/add_friend.dart';
 
 class GoogleBottomBar extends StatefulWidget {
   const GoogleBottomBar({super.key});
@@ -31,6 +31,7 @@ class _GoogleBottomBarState extends State<GoogleBottomBar> {
 
   @override
   Widget build(BuildContext context) {
+    // Always show the same title
     return Scaffold(
       appBar: AppBar(
         title: _showSearch
@@ -78,19 +79,22 @@ class _GoogleBottomBarState extends State<GoogleBottomBar> {
           IconButton(
             icon: const Icon(Icons.message),
             onPressed: () {
-              // Add your message icon action here
+              Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (context) => ChatListScreen()));
             },
           ),
         ],
       ),
       body: IndexedStack(
         index: _selectedIndex,
-        children: const [
-          HomeTab(),
-          AddFriendsTab(),
-          AddPostTab(),
-          SearchTab(),
-          ProfileTab(),
+        children: [
+          const HomeTab(),
+          // Show AddFriendsScreen for Add Friends tab
+          AddFriendsScreen(),
+          const AddPostTab(),
+          TravelHomeScreen(),
+          const ProfilePage(),
         ],
       ),
       bottomNavigationBar: SalomonBottomBar(
@@ -98,16 +102,9 @@ class _GoogleBottomBarState extends State<GoogleBottomBar> {
         selectedItemColor: const Color(0xff6200ee),
         unselectedItemColor: const Color(0xff757575),
         onTap: (index) {
-          if (index == 4) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const ProfilePage()),
-            );
-          } else {
-            setState(() {
-              _selectedIndex = index;
-            });
-          }
+          setState(() {
+            _selectedIndex = index;
+          });
         },
         items: _navBarItems,
       ),
@@ -135,7 +132,7 @@ final _navBarItems = [
   ),
   SalomonBottomBarItem(
     icon: const Icon(Icons.flight),
-    title: const Text("Plan a trip"),
+    title: const Text("Plan a Trip"),
     selectedColor: const Color.fromARGB(255, 24, 185, 83),
   ),
   SalomonBottomBarItem(
