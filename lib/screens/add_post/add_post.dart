@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 
 class AddPostScreen extends StatefulWidget {
   @override
@@ -42,36 +43,40 @@ class _AddPostScreenState extends State<AddPostScreen> {
     final selected = await showDialog<List<String>>(
       context: context,
       builder: (context) {
-        final tempSelected = List<String>.from(_friends);
-        return AlertDialog(
-          title: const Text('Tag Friends'),
-          content: SizedBox(
-            width: 300,
-            child: ListView(
-              shrinkWrap: true,
-              children: _allFriends.map((friend) {
-                return CheckboxListTile(
-                  value: tempSelected.contains(friend),
-                  onChanged: (val) {
-                    setState(() {
-                      if (val == true) {
-                        tempSelected.add(friend);
-                      } else {
-                        tempSelected.remove(friend);
-                      }
-                    });
-                  },
-                  title: Text(friend),
-                );
-              }).toList(),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, tempSelected),
-              child: const Text('Done'),
-            ),
-          ],
+        List<String> tempSelected = List<String>.from(_friends);
+        return StatefulBuilder(
+          builder: (context, setStateDialog) {
+            return AlertDialog(
+              title: const Text('Tag Friends'),
+              content: SizedBox(
+                width: 300,
+                child: ListView(
+                  shrinkWrap: true,
+                  children: _allFriends.map((friend) {
+                    return CheckboxListTile(
+                      value: tempSelected.contains(friend),
+                      onChanged: (val) {
+                        setStateDialog(() {
+                          if (val == true) {
+                            tempSelected.add(friend);
+                          } else {
+                            tempSelected.remove(friend);
+                          }
+                        });
+                      },
+                      title: Text(friend),
+                    );
+                  }).toList(),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context, tempSelected),
+                  child: const Text('Done'),
+                ),
+              ],
+            );
+          },
         );
       },
     );
@@ -110,7 +115,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
   void _pickSchedule() async {
     final DateTime? pickedDate = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
+      initialDate: _scheduledDate ?? DateTime.now(),
       firstDate: DateTime.now(),
       lastDate: DateTime(2100),
     );
@@ -146,6 +151,38 @@ class _AddPostScreenState extends State<AddPostScreen> {
     if (music != null) {
       setState(() {
         _selectedMusic = music == 'No Music' ? null : music;
+      });
+    }
+  }
+
+  void _showLocationPicker() async {
+    final location = await showDialog<String>(
+      context: context,
+      builder: (context) => SimpleDialog(
+        title: const Text('Select Location'),
+        children: [
+          SimpleDialogOption(
+            onPressed: () => Navigator.pop(context, 'New York'),
+            child: const Text('New York'),
+          ),
+          SimpleDialogOption(
+            onPressed: () => Navigator.pop(context, 'Paris'),
+            child: const Text('Paris'),
+          ),
+          SimpleDialogOption(
+            onPressed: () => Navigator.pop(context, 'Tokyo'),
+            child: const Text('Tokyo'),
+          ),
+          SimpleDialogOption(
+            onPressed: () => Navigator.pop(context, null),
+            child: const Text('Cancel'),
+          ),
+        ],
+      ),
+    );
+    if (location != null) {
+      setState(() {
+        _selectedLocation = location;
       });
     }
   }
@@ -294,9 +331,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                         ),
                         const SizedBox(width: 10),
                         OutlinedButton.icon(
-                          onPressed: () {
-                            // TODO: Implement location picker
-                          },
+                          onPressed: _showLocationPicker,
                           icon: const Icon(
                             Icons.location_on,
                             color: Colors.blueAccent,
@@ -326,7 +361,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                           label: Text(
                             _scheduledDate == null
                                 ? 'Set Schedule'
-                                : 'Scheduled: ${_scheduledDate!.toLocal().toString().substring(0, 16)}',
+                                : 'Scheduled: ${DateFormat('yMMMd').format(_scheduledDate!)}',
                             style: GoogleFonts.poppins(color: Colors.black87),
                             overflow: TextOverflow.ellipsis,
                           ),
