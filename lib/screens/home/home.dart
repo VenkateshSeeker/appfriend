@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 import 'package:google_fonts/google_fonts.dart';
-
+import 'package:app/screens/profile/profile.dart';
 import '../login/login.dart';
 import 'home_tab.dart';
-import 'add_post_tab.dart';
 import 'home_fab.dart';
-import '../../screens/profile/profile.dart';
+import '../add_post/add_post.dart'; // <-- updated import
 import '../../screens/plan a trip/plan_a_trip.dart';
 import '../chat/chat.dart';
 import '../add_friend/add_friend.dart';
@@ -92,9 +91,9 @@ class _GoogleBottomBarState extends State<GoogleBottomBar> {
           const HomeTab(),
           // Show AddFriendsScreen for Add Friends tab
           AddFriendsScreen(),
-          const AddPostTab(),
+          AddPostScreen(), // <-- replaced AddPostTab with AddPostScreen
           TravelHomeScreen(),
-          const ProfilePage(),
+          ProfileScreen(), // <-- FIXED: use ProfileScreen instead of ProfilePage
         ],
       ),
       bottomNavigationBar: SalomonBottomBar(
