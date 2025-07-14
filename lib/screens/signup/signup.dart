@@ -1,11 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../login/login.dart';
-import '../welcome/welcome.dart'; // Make sure this imports AnimatedStarField
+import '../welcome/welcome.dart';
+import '../signup/signup_conf.dart'; // <-- Add this import
 
-class SignUpScreen extends StatelessWidget {
+class SignUpScreen extends StatefulWidget {
+  const SignUpScreen({super.key});
+
+  @override
+  State<SignUpScreen> createState() => _SignUpScreenState();
+}
+
+class _SignUpScreenState extends State<SignUpScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  SignUpScreen({super.key});
+  String? fullName;
+  String? phoneNumber;
+  String? password;
+  String? otp;
+  String? country;
+  String? emailAddress;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -15,8 +30,6 @@ class SignUpScreen extends StatelessWidget {
           children: [
             // Animated star field background
             const AnimatedStarField(),
-            // Shooting star effect removed to fix build error
-            // const ShootingStar(),
             LayoutBuilder(
               builder: (context, constraints) {
                 return Center(
@@ -24,7 +37,6 @@ class SignUpScreen extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
@@ -39,7 +51,6 @@ class SignUpScreen extends StatelessWidget {
                         Form(
                           key: _formKey,
                           child: Column(
-                            mainAxisSize: MainAxisSize.min,
                             children: [
                               TextFormField(
                                 decoration: const InputDecoration(
@@ -59,8 +70,32 @@ class SignUpScreen extends StatelessWidget {
                                   ),
                                 ),
                                 style: const TextStyle(color: Colors.white),
-                                onSaved: (name) {
-                                  // Save it
+                                onSaved: (value) {
+                                  fullName = value;
+                                },
+                              ),
+                              const SizedBox(height: 16.0),
+                              TextFormField(
+                                decoration: const InputDecoration(
+                                  hintText: 'Email address',
+                                  filled: true,
+                                  fillColor: Color(0xFF162447),
+                                  hintStyle: TextStyle(color: Colors.white70),
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 24.0,
+                                    vertical: 16.0,
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderSide: BorderSide.none,
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(50),
+                                    ),
+                                  ),
+                                ),
+                                style: const TextStyle(color: Colors.white),
+                                keyboardType: TextInputType.emailAddress,
+                                onSaved: (value) {
+                                  emailAddress = value;
                                 },
                               ),
                               const SizedBox(height: 16.0),
@@ -90,8 +125,8 @@ class SignUpScreen extends StatelessWidget {
                                         color: Colors.white,
                                       ),
                                       keyboardType: TextInputType.phone,
-                                      onSaved: (phone) {
-                                        // Save it
+                                      onSaved: (value) {
+                                        phoneNumber = value;
                                       },
                                     ),
                                   ),
@@ -137,8 +172,8 @@ class SignUpScreen extends StatelessWidget {
                                         color: Colors.white,
                                       ),
                                       keyboardType: TextInputType.number,
-                                      onSaved: (otp) {
-                                        // Save OTP
+                                      onSaved: (value) {
+                                        otp = value;
                                       },
                                     ),
                                   ),
@@ -177,8 +212,8 @@ class SignUpScreen extends StatelessWidget {
                                 ),
                                 style: const TextStyle(color: Colors.white),
                                 obscureText: true,
-                                onSaved: (passaword) {
-                                  // Save it
+                                onSaved: (value) {
+                                  password = value;
                                 },
                               ),
                               const SizedBox(height: 16.0),
@@ -190,8 +225,8 @@ class SignUpScreen extends StatelessWidget {
                                 ),
                                 dropdownColor: const Color(0xFF162447),
                                 style: const TextStyle(color: Colors.white),
-                                onSaved: (country) {
-                                  // save it
+                                onSaved: (value) {
+                                  country = value;
                                 },
                                 onChanged: (value) {},
                                 hint: const Text(
@@ -218,10 +253,39 @@ class SignUpScreen extends StatelessWidget {
                                   vertical: 16.0,
                                 ),
                                 child: ElevatedButton(
-                                  onPressed: () {
+                                  onPressed: () async {
                                     if (_formKey.currentState!.validate()) {
                                       _formKey.currentState!.save();
-                                      // Signup logic here
+                                      try {
+                                        final credential = await FirebaseAuth
+                                            .instance
+                                            .createUserWithEmailAndPassword(
+                                              email: emailAddress!,
+                                              password: password!,
+                                            );
+                                        print("User created successfully");
+                                        // Redirect to signup confirmation screen
+                                        Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                const SignUpConfScreen(),
+                                          ),
+                                        );
+                                      } on FirebaseAuthException catch (e) {
+                                        if (e.code == 'weak-password') {
+                                          print(
+                                            'The password provided is too weak.',
+                                          );
+                                        } else if (e.code ==
+                                            'email-already-in-use') {
+                                          print(
+                                            'The account already exists for that email.',
+                                          );
+                                        }
+                                      } catch (e) {
+                                        print(e);
+                                      }
                                     }
                                   },
                                   style: ElevatedButton.styleFrom(
@@ -278,7 +342,7 @@ class SignUpScreen extends StatelessWidget {
   }
 }
 
-// only for demo
+// Demo country list
 List<DropdownMenuItem<String>>? countries =
     [
       "Bangladesh",

@@ -5,7 +5,7 @@ import 'package:app/screens/profile/profile.dart';
 import '../login/login.dart';
 import 'home_tab.dart';
 import 'home_fab.dart';
-import '../add_post/add_post.dart'; // <-- updated import
+import '../add_post/add_post.dart';
 import '../../screens/plan a trip/plan_a_trip.dart';
 import '../chat/chat.dart';
 import '../add_friend/add_friend.dart';
@@ -30,7 +30,6 @@ class _GoogleBottomBarState extends State<GoogleBottomBar> {
 
   @override
   Widget build(BuildContext context) {
-    // Always show the same title
     return Scaffold(
       appBar: AppBar(
         title: _showSearch
@@ -61,7 +60,7 @@ class _GoogleBottomBarState extends State<GoogleBottomBar> {
           onPressed: () {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => SignInScreen()),
+              MaterialPageRoute(builder: (context) => const SignInScreen()),
             );
           },
         ),
@@ -89,11 +88,10 @@ class _GoogleBottomBarState extends State<GoogleBottomBar> {
         index: _selectedIndex,
         children: [
           const HomeTab(),
-          // Show AddFriendsScreen for Add Friends tab
           AddFriendsScreen(),
-          AddPostScreen(), // <-- replaced AddPostTab with AddPostScreen
-          TravelHomeScreen(),
-          ProfileScreen(), // <-- FIXED: use ProfileScreen instead of ProfilePage
+          AddPostScreen(),
+          PlanATripScreen(), // ✅ corrected here
+          ProfileScreen(),
         ],
       ),
       bottomNavigationBar: SalomonBottomBar(

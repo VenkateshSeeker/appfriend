@@ -5,6 +5,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
 class AddPostScreen extends StatefulWidget {
+  const AddPostScreen({super.key});
+
   @override
   _AddPostScreenState createState() => _AddPostScreenState();
 }
@@ -13,12 +15,12 @@ class _AddPostScreenState extends State<AddPostScreen> {
   String? _selectedImage;
   String _caption = '';
   List<String> _hashtags = [];
-  List<String> _allFriends = ['Alice', 'Bob', 'Charlie'];
+  final List<String> _allFriends = ['Alice', 'Bob', 'Charlie'];
   List<String> _friends = [];
   String? _selectedLocation;
   DateTime? _scheduledDate;
   String? _imageCredit;
-  List<String> _filters = ['None', 'Black & White', 'Warm', 'Cool', 'Vintage'];
+  final List<String> _filters = ['None', 'Black & White', 'Warm', 'Cool', 'Vintage'];
   String? _selectedFilter;
   String? _selectedMusic;
   bool _shareOnFacebook = false;

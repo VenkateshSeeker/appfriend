@@ -16,31 +16,37 @@ class _ChatBotWindowState extends State<ChatBotWindow> {
   ];
   bool _isLoading = false;
 
-  static const String _apiKey =
-      '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';
+  // ✅ Your Grok / x.ai API key
+  static const String _apiKey = 'xai-ZY2evaT5tkXjCVP5cAFh55Zjt1Rz3IGUnBPJ3N6GtjeDOZllHO7G3z5ZmG4MBh87sA9A6lpGzxtHSSKD';
 
+  // ✅ Send message function
   Future<void> _sendMessage() async {
     final text = _controller.text.trim();
     if (text.isEmpty) return;
+
     setState(() {
       _messages.add(_ChatMessage(role: 'user', content: text));
       _isLoading = true;
       _controller.clear();
     });
+
     try {
       final response = await http.post(
-        Uri.parse('https://api.openai.com/v1/chat/completions'),
+        Uri.parse('https://api.x.ai/v1/chat/completions'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $_apiKey',
         },
         body: jsonEncode({
-          'model': 'gpt-3.5-turbo',
+          'model': 'grok-1', // Replace with valid model name if different
           'messages': _messages
               .map((m) => {'role': m.role, 'content': m.content})
               .toList(),
         }),
       );
+
+      print(response.body);
+
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final reply = data['choices'][0]['message']['content'] as String?;
@@ -52,11 +58,14 @@ class _ChatBotWindowState extends State<ChatBotWindow> {
           });
         }
       } else {
+        final errorData = jsonDecode(response.body);
+        final errorMessage =
+            errorData['error']?['message'] ?? 'Unknown error occurred.';
         setState(() {
           _messages.add(
             _ChatMessage(
               role: 'assistant',
-              content: 'Sorry, there was an error.',
+              content: 'Error: $errorMessage',
             ),
           );
         });
@@ -95,7 +104,7 @@ class _ChatBotWindowState extends State<ChatBotWindow> {
                     const Icon(Icons.smart_toy, color: Colors.black),
                     const SizedBox(width: 8),
                     Text(
-                      'App Assistant',
+                      'Grok Assistant',
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     const Spacer(),

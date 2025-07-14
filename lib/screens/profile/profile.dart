@@ -1,17 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'edit_profile.dart';
 
 class ProfileScreen extends StatelessWidget {
-  final Map<String, dynamic> user = {
-    'avatar': 'https://randomuser.me/api/portraits/men/32.jpg',
-    'username': 'Venkatesh',
-    'bio': 'Athlete | Traveler | Storyteller',
-    'link': 'https://youtube.com/nomado',
-    'posts': 48,
-    'followers': 1200,
-    'following': 180,
-  };
+  ProfileScreen({super.key});
 
   final List<Map<String, String>> highlights = [
     {
@@ -35,7 +28,7 @@ class ProfileScreen extends StatelessWidget {
 
   final List<Map<String, dynamic>> posts = List.generate(
     36,
-    (i) => {
+        (i) => {
       'image': 'https://picsum.photos/id/${i + 10}/400/400',
       'views': 100 * (i + 1),
       'isReel': i % 3 == 0,
@@ -45,6 +38,8 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final User? user = FirebaseAuth.instance.currentUser;
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -56,16 +51,19 @@ class ProfileScreen extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: 40,
-                  backgroundImage: NetworkImage(user['avatar']),
+                  backgroundImage: user?.photoURL != null
+                      ? NetworkImage(user!.photoURL!)
+                      : const AssetImage('assets/default_avatar.png')
+                  as ImageProvider,
                 ),
                 const SizedBox(width: 24),
                 Expanded(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _buildStat('Posts', user['posts']),
-                      _buildStat('Followers', user['followers']),
-                      _buildStat('Following', user['following']),
+                      _buildStat('Posts', 48),
+                      _buildStat('Followers', 1200),
+                      _buildStat('Following', 180),
                     ],
                   ),
                 ),
@@ -73,7 +71,7 @@ class ProfileScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              user['username'],
+              user?.displayName ?? 'User',
               style: GoogleFonts.poppins(
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
@@ -81,51 +79,8 @@ class ProfileScreen extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              user['bio'],
+              user?.email ?? '',
               style: GoogleFonts.poppins(color: Colors.black54),
-            ),
-            const SizedBox(height: 4),
-            InkWell(
-              onTap: () {},
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.link, color: Colors.blueAccent, size: 18),
-                  const SizedBox(width: 4),
-                  Text(
-                    user['link'],
-                    style: GoogleFonts.poppins(
-                      color: Colors.blueAccent,
-                      fontSize: 14,
-                      decoration: TextDecoration.underline,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-              decoration: BoxDecoration(
-                color: Colors.grey[100],
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      Icon(Icons.bar_chart, color: Colors.blueAccent, size: 20),
-                      const SizedBox(width: 8),
-                      Text(
-                        '900 views in last 30 days',
-                        style: GoogleFonts.poppins(fontSize: 13),
-                      ),
-                    ],
-                  ),
-                  Switch(value: true, onChanged: (_) {}),
-                ],
-              ),
             ),
             const SizedBox(height: 16),
             Row(
@@ -140,8 +95,8 @@ class ProfileScreen extends StatelessWidget {
                       );
                     },
                     style: OutlinedButton.styleFrom(
-                      shape: StadiumBorder(),
-                      side: BorderSide(color: Colors.blueAccent),
+                      shape: const StadiumBorder(),
+                      side: const BorderSide(color: Colors.blueAccent),
                     ),
                     child: Text(
                       'Edit Profile',
@@ -154,8 +109,8 @@ class ProfileScreen extends StatelessWidget {
                   child: OutlinedButton(
                     onPressed: () {},
                     style: OutlinedButton.styleFrom(
-                      shape: StadiumBorder(),
-                      side: BorderSide(color: Colors.blueAccent),
+                      shape: const StadiumBorder(),
+                      side: const BorderSide(color: Colors.blueAccent),
                     ),
                     child: Text(
                       'Share Profile',
@@ -183,11 +138,8 @@ class ProfileScreen extends StatelessWidget {
                             ? NetworkImage(h['image']!)
                             : null,
                         child: h['image']!.isEmpty
-                            ? Icon(
-                                Icons.add,
-                                color: Colors.blueAccent,
-                                size: 32,
-                              )
+                            ? const Icon(Icons.add,
+                            color: Colors.blueAccent, size: 32)
                             : null,
                       ),
                       const SizedBox(height: 6),
@@ -207,11 +159,11 @@ class ProfileScreen extends StatelessWidget {
                 height: 600,
                 child: Column(
                   children: [
-                    TabBar(
+                    const TabBar(
                       indicatorColor: Colors.blueAccent,
                       labelColor: Colors.blueAccent,
                       unselectedLabelColor: Colors.black54,
-                      tabs: const [
+                      tabs: [
                         Tab(icon: Icon(Icons.grid_on)),
                         Tab(icon: Icon(Icons.movie_creation_outlined)),
                         Tab(icon: Icon(Icons.person_pin_outlined)),
@@ -294,7 +246,7 @@ class ProfileScreen extends StatelessWidget {
                         color: Colors.white,
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
-                        shadows: [Shadow(blurRadius: 8, color: Colors.black)],
+                        shadows: [const Shadow(blurRadius: 8, color: Colors.black)],
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -316,7 +268,7 @@ class ProfileScreen extends StatelessWidget {
                 ),
               ),
               if (post['isReel'])
-                Positioned(
+                const Positioned(
                   top: 6,
                   right: 6,
                   child: Icon(
@@ -329,10 +281,8 @@ class ProfileScreen extends StatelessWidget {
                 bottom: 6,
                 right: 6,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 6,
-                    vertical: 2,
-                  ),
+                  padding:
+                  const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
                     color: Colors.black54,
                     borderRadius: BorderRadius.circular(8),
@@ -340,7 +290,8 @@ class ProfileScreen extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.remove_red_eye, color: Colors.white, size: 14),
+                      const Icon(Icons.remove_red_eye,
+                          color: Colors.white, size: 14),
                       const SizedBox(width: 2),
                       Text(
                         '${post['views']}',
